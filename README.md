@@ -2,6 +2,7 @@
 
 arguments :
 - number_of_philosophers : nombre de philosophes et de fork
+	est ce que je dois accepter tout ce qui passe dans atoi ou seulement des int sans lettres ??
 - time_to_die (ms) : temps avant que le philosophe meurt s'il ne mange pas
 - time_to_eat : temps qu'il prend pour manger
 - time_to_sleep : temps pour dormir 
