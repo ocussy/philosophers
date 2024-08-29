@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ocussy <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/08/28 18:09:53 by ocussy            #+#    #+#             */
+/*   Updated: 2024/08/28 18:09:54 by ocussy           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef PHILO_H
 # define PHILO_H
 
@@ -9,42 +21,69 @@
 # include <sys/time.h>
 # include <unistd.h>
 
+# define IS_EATING 1
+# define IS_THINKING 0
+
 typedef struct s_info
 {
-	char	*nb_philo;
-	char	*time_to_die;
-	char	*time_to_eat;
-	char	*time_to_sleep;
-	char	*nb_time_eat;
-}			t_info;
-
-typedef struct s_data
-{
-	int		nb_philo;
-	int		time_to_die;
-	int		time_to_eat;
-	int		time_to_sleep;
-	int		nb_time_eat;
-
-}			t_data;
+	char			*nb_philo;
+	char			*time_to_die;
+	char			*time_to_eat;
+	char			*time_to_sleep;
+	char			*nb_time_eat;
+}					t_info;
 
 typedef struct s_philo
 {
-	int		id;
-	t_data	*data;
-}			t_philo;
+	int				nb_philo;
+	int				time_to_die;
+	int				time_to_eat;
+	int				time_to_sleep;
+	int				nb_time_eat;
+	int				id;
+	pthread_mutex_t	*left_fork;
+	pthread_mutex_t	*right_fork;
+	pthread_mutex_t	status_mutex;
+	int				status;
+	long long		last_eat;
+}					t_philo;
+
+typedef struct s_sim
+{
+	t_philo			philo_args[255];
+	pthread_t		philosophers[255];
+	pthread_t		monitoring_thread;
+	int				nb_philo;
+	pthread_mutex_t	forks[255];
+}					t_sim;
 
 // verif_data
 
-int			verif_philo(char *nb_philo);
-int			verif_time_and_zero(char *time);
-int			verif_time(char *nb);
-int			verif_argument(char *time_to_die, char *time_to_eat,
-				char *time_to_sleep, char *nb_time_eat);
+int					verif_philo(char *nb_philo);
+int					verif_time_and_zero(char *time);
+int					verif_time(char *nb);
+int					verif_argument(char *time_to_die, char *time_to_eat,
+						char *time_to_sleep, char *nb_time_eat);
 
-void		philo(t_info *info);
-void		philo_option(char *nb_philo, char *time_to_die, char *time_to_eat,
-				char *time_to_sleep, char *nb_time_eat);
-int			main(int argc, char **argv);
+// init_philo
+
+void				init_philosophers_args(t_philo *philo_arg,
+						pthread_mutex_t *fork, t_info *info);
+void				start_simulation(t_sim *sim);
+void				init_simulation(t_sim *sim, t_info *info);
+void				clean_simulation(t_sim *sim);
+
+// philo_action
+
+void				eat_even(long long start_time, t_philo *args, int philo_id);
+void				eat_odd(long long start_time, t_philo *args, int philo_id);
+
+// philo
+void				philo(t_info *info);
+void				*philosopher(void *arg);
+void				*monitoring(void *arg);
+long long			get_time_ms(void);
+
+int					main(int argc, char **argv);
 
 #endif
