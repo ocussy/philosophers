@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ocussy <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: ocussy <ocussy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/28 18:09:53 by ocussy            #+#    #+#             */
-/*   Updated: 2024/08/28 18:09:54 by ocussy           ###   ########.fr       */
+/*   Updated: 2024/08/30 17:03:09 by ocussy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include "libft/libft.h"
 # include <pthread.h>
+# include <stdbool.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
@@ -40,12 +41,15 @@ typedef struct s_philo
 	int				time_to_eat;
 	int				time_to_sleep;
 	int				nb_time_eat;
+	int				meals_eaten;
 	int				id;
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
 	pthread_mutex_t	status_mutex;
+	pthread_mutex_t	meal_mutex;
 	int				status;
 	long long		last_eat;
+	int				philo_meal_end;
 }					t_philo;
 
 typedef struct s_sim

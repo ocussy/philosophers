@@ -6,7 +6,7 @@
 /*   By: ocussy <ocussy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/26 12:03:00 by ocussy            #+#    #+#             */
-/*   Updated: 2024/08/28 18:14:31 by ocussy           ###   ########.fr       */
+/*   Updated: 2024/08/30 17:26:22 by ocussy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,30 +22,44 @@ long long	get_time_ms(void)
 
 void	*monitoring(void *arg)
 {
-	t_philo		*args;
+	t_sim		*sim;
 	int			i;
+	int			all_eaten;
 	long long	start_time;
 	long long	current_time;
 
-	args = (t_philo *)arg;
+	sim = (t_sim *)arg;
+	all_eaten = 0;
 	start_time = get_time_ms();
 	while (1)
 	{
 		i = 0;
-		while (i < args->nb_philo)
+		while (i < sim->philo_args->nb_philo)
 		{
-			pthread_mutex_lock(&args[i].status_mutex);
+			pthread_mutex_lock(&sim->philo_args[i].status_mutex);
 			current_time = get_time_ms() - start_time;
-			if (args->time_to_die < (current_time - args[i].last_eat)
-				&& args[i].status != IS_EATING)
+			if (sim->philo_args->time_to_die < (current_time
+					- sim->philo_args[i].last_eat)
+				&& sim->philo_args[i].status != IS_EATING)
 			{
 				printf("%lld %d died\n", current_time, i + 1);
+				clean_simulation(sim);
 				exit(1);
 			}
-			pthread_mutex_unlock(&args[i].status_mutex);
+			if (sim->philo_args[i].meals_eaten >= sim->philo_args->nb_time_eat
+				&& sim->philo_args->nb_time_eat >= 0)
+				all_eaten = 0;
+			else
+				all_eaten = 1;
+			pthread_mutex_unlock(&sim->philo_args[i].status_mutex);
 			i++;
 		}
-		usleep(1000);
+		if (all_eaten != 1)
+		{
+			clean_simulation(sim);
+			exit(1);
+		}
+		usleep(10000);
 	}
 	return (NULL);
 }
@@ -56,16 +70,30 @@ void	*philosopher(void *arg)
 	int			philo_id;
 	long long	ms;
 	long long	start_time;
+	int			tmp;
 
 	args = (t_philo *)arg;
 	philo_id = args->id;
 	start_time = get_time_ms();
+	tmp = 0;
 	while (1)
 	{
 		if (philo_id % 2 == 0)
 			eat_even(start_time, args, philo_id);
-		else if (philo_id % 2 == 1)
-			eat_odd(start_time, args, philo_id);
+		if (philo_id % 2 == 1)
+		{
+			if (tmp == 0)
+				tmp++;
+			else
+				eat_odd(start_time, args, philo_id);
+		}
+		if (args->meals_eaten >= args->nb_time_eat && args->nb_time_eat >= 0)
+		{
+			pthread_mutex_lock(&args->meal_mutex);
+			args->philo_meal_end++;
+			pthread_mutex_unlock(&args->meal_mutex);
+			break ;
+		}
 		args->status = IS_THINKING;
 		ms = get_time_ms() - start_time;
 		printf("%lld %d is sleeping\n", ms, philo_id);
