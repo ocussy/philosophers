@@ -6,7 +6,7 @@
 /*   By: ocussy <ocussy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/28 18:09:53 by ocussy            #+#    #+#             */
-/*   Updated: 2024/08/30 17:03:09 by ocussy           ###   ########.fr       */
+/*   Updated: 2024/09/02 11:39:20 by ocussy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,11 +54,11 @@ typedef struct s_philo
 
 typedef struct s_sim
 {
-	t_philo			philo_args[255];
-	pthread_t		philosophers[255];
+	t_philo			*philo_args;
+	pthread_t		*philosophers;
 	pthread_t		monitoring_thread;
 	int				nb_philo;
-	pthread_mutex_t	forks[255];
+	pthread_mutex_t	*forks;
 }					t_sim;
 
 // verif_data
@@ -74,7 +74,7 @@ int					verif_argument(char *time_to_die, char *time_to_eat,
 void				init_philosophers_args(t_philo *philo_arg,
 						pthread_mutex_t *fork, t_info *info);
 void				start_simulation(t_sim *sim);
-void				init_simulation(t_sim *sim, t_info *info);
+int					init_simulation(t_sim *sim, t_info *info);
 void				clean_simulation(t_sim *sim);
 
 // philo_action

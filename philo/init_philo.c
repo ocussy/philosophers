@@ -6,7 +6,7 @@
 /*   By: ocussy <ocussy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/27 15:21:14 by ocussy            #+#    #+#             */
-/*   Updated: 2024/08/30 17:28:35 by ocussy           ###   ########.fr       */
+/*   Updated: 2024/09/02 11:52:30 by ocussy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,18 +68,35 @@ void	start_simulation(t_sim *sim)
 		return ;
 }
 
-void	init_simulation(t_sim *sim, t_info *info)
+int	init_simulation(t_sim *sim, t_info *info)
 {
 	int	i;
 
 	i = 0;
 	sim->nb_philo = ft_atoi(info->nb_philo);
+	sim->philo_args = malloc(sizeof(t_philo) * sim->nb_philo);
+	if (!sim->philo_args)
+		return (-1);
+	sim->philosophers = malloc(sim->nb_philo * sizeof(pthread_t));
+	if (!sim->philo_args)
+	{
+		free(sim->philo_args);
+		return (-1);
+	}
+	sim->forks = malloc(sim->nb_philo * sizeof(pthread_mutex_t));
+	if (!sim->forks)
+	{
+		free(sim->philo_args);
+		free(sim->philosophers);
+		return (-1);
+	}
 	while (i < sim->nb_philo)
 	{
 		pthread_mutex_init(&sim->forks[i], NULL);
 		i++;
 	}
 	init_philosophers_args(sim->philo_args, sim->forks, info);
+	return (0);
 }
 
 void	clean_simulation(t_sim *sim)
@@ -95,5 +112,7 @@ void	clean_simulation(t_sim *sim)
 		i++;
 	}
 	// free(sim->monitoring_thread);
-	// free(sim->philosophers);
+	free(sim->philosophers);
+	free(sim->philo_args);
+	free(sim->forks);
 }

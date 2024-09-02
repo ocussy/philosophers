@@ -6,7 +6,7 @@
 /*   By: ocussy <ocussy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/26 12:03:00 by ocussy            #+#    #+#             */
-/*   Updated: 2024/08/30 17:26:22 by ocussy           ###   ########.fr       */
+/*   Updated: 2024/09/02 11:39:41 by ocussy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,9 @@ void	philo(t_info *info)
 	if ((verif_philo(info->nb_philo) == 0) && (verif_argument(info->time_to_die,
 				info->time_to_eat, info->time_to_sleep, NULL) == 0))
 		return ;
-	init_simulation(&sim, info);
+	i = init_simulation(&sim, info);
+	if (i == -1)
+		return ;
 	start_simulation(&sim);
 	clean_simulation(&sim);
 	return ;
