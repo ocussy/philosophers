@@ -6,7 +6,7 @@
 /*   By: ocussy <ocussy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/26 12:02:34 by ocussy            #+#    #+#             */
-/*   Updated: 2024/08/26 12:08:22 by ocussy           ###   ########.fr       */
+/*   Updated: 2024/09/03 17:32:44 by ocussy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ int	verif_time_and_zero(char *time)
 	i = 0;
 	while (time[i])
 	{
-		if (ft_isdigit(time[i]) == 0 || time[i] == '0')
+		if (ft_isdigit(time[i]) == 0 || time[0] == '0')
 		{
 			printf("Time_to_die and time_to_eat should be");
 			printf(" positive int numbers above 0\n");

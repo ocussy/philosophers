@@ -6,14 +6,14 @@
 /*   By: ocussy <ocussy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/27 15:21:14 by ocussy            #+#    #+#             */
-/*   Updated: 2024/09/02 11:52:30 by ocussy           ###   ########.fr       */
+/*   Updated: 2024/09/03 17:14:36 by ocussy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	init_philosophers_args(t_philo *philo_arg, pthread_mutex_t *fork,
-		t_info *info)
+void	init_philosophers_args(t_sim *sim, t_philo *philo_arg,
+		pthread_mutex_t *fork, t_info *info)
 {
 	int	i;
 
@@ -36,11 +36,16 @@ void	init_philosophers_args(t_philo *philo_arg, pthread_mutex_t *fork,
 		philo_arg[i].status = IS_THINKING;
 		if (pthread_mutex_init(&philo_arg[i].status_mutex, NULL) != 0)
 			exit(1);
-		if (pthread_mutex_init(&philo_arg[i].meal_mutex, NULL) != 0)
-			exit(1);
+		philo_arg[i].meal_mutex = &sim->meal_mutex;
+		philo_arg[i].philo_meal_end = 0;
+		philo_arg[i].mutex_dead = &sim->mutex_dead;
+		philo_arg[i].printf_mutex = &sim->printf_mutex;
+		philo_arg[i].add_meal = &sim->add_meal;
+		philo_arg[i].last_meal = &sim->last_meal;
+		philo_arg[i].is_dead = 0;
 		i++;
 	}
-	philo_arg->philo_meal_end = 0;
+	// pthread_mutex_init(&philo_arg->mutex_dead, NULL);
 }
 
 void	start_simulation(t_sim *sim)
@@ -57,15 +62,6 @@ void	start_simulation(t_sim *sim)
 	}
 	if (pthread_create(&sim->monitoring_thread, NULL, monitoring, sim) != 0)
 		return ;
-	i = 0;
-	while (i < sim->nb_philo)
-	{
-		if (pthread_join(sim->philosophers[i], NULL) != 0)
-			return ;
-		i++;
-	}
-	if (pthread_join(sim->monitoring_thread, NULL) != 0)
-		return ;
 }
 
 int	init_simulation(t_sim *sim, t_info *info)
@@ -74,28 +70,17 @@ int	init_simulation(t_sim *sim, t_info *info)
 
 	i = 0;
 	sim->nb_philo = ft_atoi(info->nb_philo);
-	sim->philo_args = malloc(sizeof(t_philo) * sim->nb_philo);
-	if (!sim->philo_args)
-		return (-1);
-	sim->philosophers = malloc(sim->nb_philo * sizeof(pthread_t));
-	if (!sim->philo_args)
-	{
-		free(sim->philo_args);
-		return (-1);
-	}
-	sim->forks = malloc(sim->nb_philo * sizeof(pthread_mutex_t));
-	if (!sim->forks)
-	{
-		free(sim->philo_args);
-		free(sim->philosophers);
-		return (-1);
-	}
 	while (i < sim->nb_philo)
 	{
 		pthread_mutex_init(&sim->forks[i], NULL);
 		i++;
 	}
-	init_philosophers_args(sim->philo_args, sim->forks, info);
+	pthread_mutex_init(&sim->printf_mutex, NULL);
+	pthread_mutex_init(&sim->mutex_dead, NULL);
+	pthread_mutex_init(&sim->meal_mutex, NULL);
+	pthread_mutex_init(&sim->add_meal, NULL);
+	pthread_mutex_init(&sim->last_meal, NULL);
+	init_philosophers_args(sim, sim->philo_args, sim->forks, info);
 	return (0);
 }
 
@@ -106,13 +91,20 @@ void	clean_simulation(t_sim *sim)
 	i = 0;
 	while (i < sim->nb_philo)
 	{
-		pthread_mutex_destroy(&sim->forks[i]);
-		pthread_mutex_destroy(&sim->philo_args[i].status_mutex);
-		pthread_mutex_destroy(&sim->philo_args[i].meal_mutex);
+		if (pthread_join(sim->philosophers[i], NULL) != 0)
+			return ;
 		i++;
 	}
-	// free(sim->monitoring_thread);
-	free(sim->philosophers);
-	free(sim->philo_args);
-	free(sim->forks);
+	if (pthread_join(sim->monitoring_thread, NULL) != 0)
+		return ;
+	i = 0;
+	while (i < sim->nb_philo)
+	{
+		pthread_mutex_destroy(&sim->forks[i]);
+		pthread_mutex_destroy(&sim->philo_args[i].status_mutex);
+		i++;
+	}
+	pthread_mutex_destroy(&sim->meal_mutex);
+	pthread_mutex_destroy(&sim->mutex_dead);
+	pthread_mutex_destroy(&sim->printf_mutex);
 }
