@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ocussy <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: ocussy <ocussy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/03 17:46:37 by ocussy            #+#    #+#             */
-/*   Updated: 2024/09/03 17:46:38 by ocussy           ###   ########.fr       */
+/*   Updated: 2024/09/04 11:52:33 by ocussy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,6 +154,7 @@ void	eat_even(t_philo *philo, long long start_time)
 
 void	eat_odd(t_philo *philo, long long start_time)
 {
+	// printf("%d\n", philo->id);
 	pthread_mutex_lock(philo->left_fork);
 	print_action(philo, "has taken a fork", start_time);
 	if (philo->nb_philo == 1)
@@ -162,6 +163,7 @@ void	eat_odd(t_philo *philo, long long start_time)
 		pthread_mutex_unlock(philo->left_fork);
 		return ;
 	}
+	usleep(1000);
 	pthread_mutex_lock(philo->right_fork);
 	print_action(philo, "has taken a fork", start_time);
 	pthread_mutex_lock(&philo->status_mutex);
@@ -186,7 +188,7 @@ void	*philosopher(void *arg)
 
 	philo = (t_philo *)arg;
 	start_time = get_time_ms();
-	if (philo->id % 2 == 0)
+	if (philo->id % 2 == 1)
 		usleep(1000);
 	while (1)
 	{
@@ -214,8 +216,14 @@ void	*philosopher(void *arg)
 		print_action(philo, "is sleeping", start_time);
 		usleep(philo->time_to_sleep * 1000);
 		print_action(philo, "is thinking", start_time);
-		if (philo->nb_philo % 2 == 1)
-			usleep(philo->time_to_eat * 900);
+		// if (philo->id % 2 == 1)
+		// 	usleep(1000);
+		// pthread_mutex_lock(philo->last_meal);
+		// if (philo->id % 2 == 0 && (((get_time_ms() - start_time)
+		// 			- philo->last_eat
+		// 			+ philo->time_to_eat)) < philo->time_to_die)
+		// 	usleep(philo->time_to_eat * 900);
+		// pthread_mutex_unlock(philo->last_meal);
 	}
 	return (NULL);
 }

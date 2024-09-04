@@ -2,7 +2,7 @@ NAME = philo
 SRC_FILES = main.c \
 			verif_data.c \
 			init_philo.c \
-			philo_test.c \
+			philo.c \
 
 OBJECTS = $(patsubst %.c, %.o, $(SRC_FILES))
 INCLUDE = philo.h
